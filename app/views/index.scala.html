@@ -1,7 +1,13 @@
-@(message: String)
+<!doctype html>
+<html lang="en" >
+    <head>
+        <script src="/assets/lib/angular-1.2.13/angular.min.js"></script>
+        <script src="/assets/lib/require-2.1.10.min.js"></script>
+        <script src="/assets/main.js"></script>
+    </head>
+    <body>
 
-@main("Welcome to Play") {
+        <div data-ng-view></div>
 
-    @play20.welcome(message)
-
-}
+    </body>
+</html>
