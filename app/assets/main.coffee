@@ -2,14 +2,16 @@ require.config
   baseUrl: 'assets/'
 
   paths:
-    'angular': 'lib/angular-1.2.13/angular.min'
-    'ngRoute': 'lib/angular-1.2.13/angular-route.min'
+    'angular': 'lib/components/angular/angular.min'
+    'angular-geolocation': 'lib/components/angularjs-geolocation/dist/angularjs-geolocation.min'
+    'ngRoute': 'lib/components/angular-route/angular-route.min'
 
   shim:
     'angular':
       exports: 'angular'
 
     'ngRoute': ['angular']
+    'angular-geolocation': ['angular']
 
   packages:
     [

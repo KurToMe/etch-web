@@ -1,6 +1,7 @@
 define [
   'app/module'
 
-  'app/etchController'
+  'app/etch-controller'
+  'app/etch-canvas'
 ], (module) ->
   module
