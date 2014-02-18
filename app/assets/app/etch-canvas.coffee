@@ -1,6 +1,7 @@
 class EtchCanvasLink
   constructor: (@scope, @element) ->
-    @ctx = @element[0].getContext("2d")
+    @canvas = @element[0]
+    @ctx = @canvas.getContext("2d")
     # variable that decides if something should be drawn on mousemove
     @drawing = false
     # the last coordinates before the current move
@@ -8,12 +9,23 @@ class EtchCanvasLink
     @lastY = undefined
 
     @element.bind "mouseup", @onMouseUp
+    @element.bind "touchend", @onMouseUp
+
     @element.bind "mousedown", @onMouseDown
+    @element.bind "touchstart", @onMouseDown
+
     @element.bind "mousemove", @onMouseMove
+    @element.bind "touchmove", @onMouseMove
+
+    @control = @scope.control
+    @control.getImageBase64 = @getImageBase64
+
+  getImageBase64: =>
+    @canvas.toDataURL()
 
   reset: =>
     # canvas reset
-    @element[0].width = @element[0].width
+    @canvas.width = @canvas.width
 
   draw: (lX, lY, cX, cY) ->
     # line from

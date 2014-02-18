@@ -2,6 +2,9 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
+
+POST    /json/etch         etch.EtchController.saveEtch()
+
 # Home page
 GET     /                           controllers.Application.index
 
@@ -9,3 +12,4 @@ GET     /                           controllers.Application.index
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
 
 GET     /*any                       controllers.Application.deferToAngular(any: String)
+

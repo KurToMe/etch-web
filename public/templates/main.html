@@ -5,6 +5,7 @@
     </div>
     <div ng-if="hasLocation">
         <p style="position: absolute">{{coords.latitude}} {{coords.longitude}}</p>
-        <canvas etch-canvas></canvas>
+        <canvas etch-canvas x-control="canvasControl"></canvas>
+        <button ng-click="save()">Save</button>
     </div>
 </div>
