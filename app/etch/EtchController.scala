@@ -4,6 +4,7 @@ import play.api.mvc.{Controller, Action}
 import play.api.libs.json
 import play.api.mvc.BodyParsers.parse
 
+
 object EtchController extends Controller {
 
   def saveEtch() = {
@@ -14,8 +15,11 @@ object EtchController extends Controller {
       val latitude = (json \ "coords" \ "latitude").as[Double]
       val longitude = (json \ "coords" \ "longitude").as[Double]
 
+      EtchDao.upsertEtch(Etch(base64Image, latitude, longitude))
+
       Ok("")
     }
   }
+
 
 }
