@@ -4,6 +4,7 @@
 
 
 POST    /json/etch         etch.EtchController.saveEtch()
+GET    /json/etch         etch.EtchController.getEtch(latitude: Double, longitude: Double)
 
 # Home page
 GET     /                           controllers.Application.index

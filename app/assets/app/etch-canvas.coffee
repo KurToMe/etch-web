@@ -19,9 +19,17 @@ class EtchCanvasLink
 
     @control = @scope.control
     @control.getImageBase64 = @getImageBase64
+    @control.setSrc = @setSrc
 
   getImageBase64: =>
     @canvas.toDataURL()
+
+  setSrc: (base64Image) =>
+    image = new Image
+    image.onload = =>
+      @ctx.drawImage image, 0, 0
+    image.src = base64Image
+    @canvas.src = base64Image
 
   reset: =>
     # canvas reset

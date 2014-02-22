@@ -2,7 +2,7 @@ package etch
 
 import com.mongodb.casbah.{MongoClientURI, MongoClient, MongoURI}
 import play.Play
-import com.mongodb.casbah.commons.MongoDBObject
+import com.mongodb.casbah.Imports._
 
 object EtchDao {
 
@@ -13,24 +13,56 @@ object EtchDao {
 
   val mongoClient = MongoClient(clientUri)
   val etchDb = mongoClient.getDB("etch")
-  val etchesCollection = etchDb.getCollection("etches")
+  val etchesCollection = etchDb.getCollection("etch")
 
-  val x = 3
+  val sorts = MongoDBObject(
+    EtchFields.latitude -> 1,
+    EtchFields.longitude -> 1
+  )
+  etchesCollection.ensureIndex(sorts)
+
+  object EtchFields {
+    val base64Image = "base64Image"
+    val latitude = "latitude"
+    val longitude = "longitude"
+  }
 
   def upsertEtch(etch: Etch) = {
     val document = MongoDBObject(
-      "base64Image" -> etch.base64Image,
-      "latitude" -> etch.latitude,
-      "longitude" -> etch.longitude
+      EtchFields.base64Image -> etch.base64Image,
+      EtchFields.latitude -> etch.latitude,
+      EtchFields.longitude -> etch.longitude
     )
-    val query = MongoDBObject("latitude" -> etch.latitude, "longitude" -> etch.longitude)
+    val upsertQuery = MongoDBObject(
+      EtchFields.latitude -> etch.latitude,
+      EtchFields.longitude -> etch.longitude
+    )
+
     etchesCollection.update(
-      query,
+      upsertQuery,
       document,
       true,
       false
     )
   }
+
+  def getEtch(latitude: Double, longitude: Double) = {
+    val query = MongoDBObject(
+      EtchFields.latitude -> latitude,
+      EtchFields.longitude -> longitude
+    )
+
+    val result = etchesCollection.findOne( query )
+
+    Etch(
+      result.as[String](EtchFields.base64Image),
+      result.as[Double](EtchFields.latitude),
+      result.as[Double](EtchFields.longitude)
+    )
+
+  }
+
+
 
 
 }
