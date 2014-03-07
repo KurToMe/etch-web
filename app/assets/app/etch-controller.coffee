@@ -1,9 +1,11 @@
 class EtchController
-  constructor: (@scope, @geolocation, @http) ->
+  constructor: (@scope, @geolocation, @http, @timeout) ->
     @scope.hasLocation = false
-    @geolocation.getLocation().then @updateLocation, @unableToGetLocation
     @scope.canvasControl = {}
     @scope.save = @save
+    @scope.canvasControl.ready = =>
+      @geolocation.getLocation().then @updateLocation, @unableToGetLocation
+      @timeout @save, 10 * 1000
 
   save: =>
     base64Image = @scope.canvasControl.getImageBase64()
@@ -13,17 +15,22 @@ class EtchController
     url = '/json/etch'
     @http.post(url, data).then ->
       console.log 'saved ' + data.toString()
+    @timeout @save, 10 * 1000
 
   updateLocation: (data) =>
     @scope.hasLocation = true
     @scope.coords = data.coords
+    @getUpdatedEtch()
+
+  getUpdatedEtch: =>
     url = '/json/etch'
     config =
+      cache: false
       params:
-        latitude: data.coords.latitude
-        longitude: data.coords.longitude
+        latitude: @scope.coords.latitude
+        longitude: @scope.coords.longitude
     @http.get(url, config).then @updateEtch
-
+    @timeout @getUpdatedEtch, 5 * 1000
 
   updateEtch: (data) =>
     @scope.canvasControl.setSrc data.data.base64Image
@@ -35,6 +42,6 @@ class EtchController
 
 define ['app/module'], (module) ->
   module.controller 'etchController', [
-    '$scope', 'geolocation', '$http'
+    '$scope', 'geolocation', '$http', '$timeout'
     EtchController
   ]

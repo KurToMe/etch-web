@@ -3,9 +3,13 @@
         <img src="/assets/images/search.png"
              class="center"/>
     </div>
-    <div ng-if="hasLocation">
+    <div ng-show="hasLocation">
         <p style="position: absolute">{{coords.latitude}} {{coords.longitude}}</p>
-        <canvas etch-canvas x-control="canvasControl"></canvas>
-        <button ng-click="save()">Save</button>
+        <div x-etch-literally-canvas
+             x-control="canvasControl"
+             style="width: 600px; height: 400px"
+                >
+            <canvas></canvas>
+        </div>
     </div>
 </div>

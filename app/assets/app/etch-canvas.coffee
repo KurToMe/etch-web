@@ -52,6 +52,12 @@ class EtchCanvasLink
     @ctx.beginPath()
     @drawing = true
 
+  onTouchStart: (event) =>
+    @lastX = event.offsetX
+    @lastY = event.offsetY
+    @ctx.beginPath()
+    @drawing = true
+
   onMouseMove: (event) =>
     if @drawing
       # get current mouse position
@@ -61,6 +67,20 @@ class EtchCanvasLink
       # set current coordinates to last one
       @lastX = currentX
       @lastY = currentY
+
+  onTouchMove: (event) =>
+    if @drawing
+      # get current mouse position
+      currentX = event.offsetX
+      currentY = event.offsetY
+      @draw @lastX, @lastY, currentX, currentY
+      # set current coordinates to last one
+      @lastX = currentX
+      @lastY = currentY
+
+  onTouchEnd: (event) =>
+    # stop drawing
+    @drawing = false
 
   onMouseUp: (event) =>
     # stop drawing
