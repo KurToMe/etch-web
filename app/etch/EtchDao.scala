@@ -13,6 +13,12 @@ object EtchDao {
 
   val mongoClient = MongoClient(clientUri)
   val etchDb = mongoClient.getDB("etch")
+  clientUri.username match {
+    case Some(username) => {
+      etchDb.authenticate(username, String.valueOf(clientUri.password))
+    }
+    case _ => // No need to auth
+  }
   val etchesCollection = etchDb.getCollection("etch")
 
   val sorts = MongoDBObject(
