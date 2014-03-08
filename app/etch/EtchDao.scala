@@ -17,14 +17,15 @@ object EtchDao {
     case _ => "etch"
   }
   val etchDb = mongoClient.getDB(dbName)
-  clientUri.username match {
-    case Some(username) => {
-      println(s"Authenticating mongo user $username on db $dbName")
-      val pass = String.valueOf(clientUri.password.get)
-      etchDb.authenticate(username, pass)
-    }
-    case _ => // No need to auth
-  }
+  println(s"Using mongo db: $dbName")
+//  clientUri.username match {
+//    case Some(username) => {
+//      println(s"Authenticating mongo user $username on db $dbName")
+//      val pass = String.valueOf(clientUri.password.get)
+//      etchDb.authenticate(username, pass)
+//    }
+//    case _ => // No need to auth
+//  }
   val etchesCollection = etchDb.getCollection("etch")
 
   val sorts = MongoDBObject(
