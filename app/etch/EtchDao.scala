@@ -58,7 +58,7 @@ object EtchDao {
     )
   }
 
-  def getEtch(latitude: Double, longitude: Double) = {
+  def getEtch(latitude: Double, longitude: Double): Option[Etch] = {
     val query = MongoDBObject(
       EtchFields.latitude -> latitude,
       EtchFields.longitude -> longitude
@@ -66,12 +66,16 @@ object EtchDao {
 
     val result = etchesCollection.findOne( query )
 
-    Etch(
-      result.as[String](EtchFields.base64Image),
-      result.as[Double](EtchFields.latitude),
-      result.as[Double](EtchFields.longitude)
-    )
-
+    if (result == null) {
+      None
+    }
+    else {
+      Some(Etch(
+        result.as[String](EtchFields.base64Image),
+        result.as[Double](EtchFields.latitude),
+        result.as[Double](EtchFields.longitude)
+      ))
+    }
   }
 
 

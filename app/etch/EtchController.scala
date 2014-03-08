@@ -3,7 +3,7 @@ package etch
 import play.api.mvc.{Controller, Action}
 import play.api.libs.json
 import play.api.mvc.BodyParsers.parse
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Writes, Json}
 
 
 object EtchController extends Controller {
@@ -22,17 +22,21 @@ object EtchController extends Controller {
     }
   }
 
+  implicit val etchWrites = new Writes[Etch] {
+    override def writes(etch: Etch): JsValue = {
+      Json.obj(
+        "base64Image" -> etch.base64Image,
+        "latitude" -> etch.latitude,
+        "longitude" -> etch.longitude
+      )
+    }
+  }
+
   def getEtch(latitude:Double, longitude:Double) = {
     Action.apply {
       val etch = EtchDao.getEtch(latitude, longitude)
 
-      Ok(
-        Json.obj(
-          "base64Image" -> etch.base64Image,
-          "latitude" -> etch.latitude,
-          "longitude" -> etch.longitude
-        )
-      )
+      Ok(Json.toJson(etch))
     }
   }
 
