@@ -15,7 +15,9 @@ object EtchDao {
   val etchDb = mongoClient.getDB("etch")
   clientUri.username match {
     case Some(username) => {
-      etchDb.authenticate(username, String.valueOf(clientUri.password))
+      println(s"Authenticating mongo user $username")
+      val pass = String.valueOf(clientUri.password.get)
+      etchDb.authenticate(username, pass)
     }
     case _ => // No need to auth
   }
