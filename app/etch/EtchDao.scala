@@ -12,10 +12,14 @@ object EtchDao {
   val clientUri = MongoClientURI(rawUriString)
 
   val mongoClient = MongoClient(clientUri)
-  val etchDb = mongoClient.getDB("etch")
+  val dbName = clientUri.database match {
+    case Some(name) => name
+    case _ => "etch"
+  }
+  val etchDb = mongoClient.getDB(dbName)
   clientUri.username match {
     case Some(username) => {
-      println(s"Authenticating mongo user $username")
+      println(s"Authenticating mongo user $username on db $dbName")
       val pass = String.valueOf(clientUri.password.get)
       etchDb.authenticate(username, pass)
     }
