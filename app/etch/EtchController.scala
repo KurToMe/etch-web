@@ -16,10 +16,17 @@ object EtchController extends Controller {
       val latitude = (json \ "coords" \ "latitude").as[Double]
       val longitude = (json \ "coords" \ "longitude").as[Double]
 
-      EtchDao.upsertEtch(Etch(base64Image, latitude, longitude))
+      val etch = Etch(base64Image, truncate(latitude), truncate(longitude))
+      EtchDao.upsertEtch(etch)
 
       Ok("")
     }
+  }
+
+  private def truncate(d: Double): Double = {
+    val digits: Int = 3
+    val multiplier: Int = 10 * digits
+    (d * multiplier).floor / multiplier
   }
 
   implicit val etchWrites = new Writes[Etch] {
@@ -34,7 +41,7 @@ object EtchController extends Controller {
 
   def getEtch(latitude:Double, longitude:Double) = {
     Action.apply {
-      val etch = EtchDao.getEtch(latitude, longitude)
+      val etch = EtchDao.getEtch(truncate(latitude), truncate(longitude))
 
       Ok(Json.toJson(etch))
     }
