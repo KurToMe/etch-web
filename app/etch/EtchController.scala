@@ -24,7 +24,7 @@ object EtchController extends Controller {
   }
 
   private def truncate(d: Double): Double = {
-    val digits: Int = 3
+    val digits: Int = 5
     val multiplier: Int = 10 * digits
     (d * multiplier).floor / multiplier
   }
