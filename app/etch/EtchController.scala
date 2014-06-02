@@ -24,8 +24,8 @@ object EtchController extends Controller {
   }
 
   def truncate(d: Double): Double = {
-    // 4 decimal place is about 30 ft precision,
-    //  which is about as consistent as most phones can hope for nowadays.
+    // 4 decimal places is about 30 ft precision,
+    //  which is about as accurate as most phones can hope for nowadays.
     val digits: Int = 4
 
     val multiplier: Double = math.pow(10, digits)
