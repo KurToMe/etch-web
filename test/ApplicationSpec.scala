@@ -11,9 +11,8 @@ class ApplicationSpec extends WordSpec {
     "remove " in {
       val x: Double = 1.23456789
       val result = EtchController truncate x
-      val expected = 1.23456
+      val expected = 1.2345
       assertResult(expected)(result)
-
     }
   }
 }
