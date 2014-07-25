@@ -29,7 +29,7 @@ object EtchController extends Controller {
     val digits: Int = 4
 
     val multiplier: Double = math.pow(10, digits)
-    (d * multiplier).floor / multiplier
+    (d * multiplier).round / multiplier
   }
 
   implicit val etchWrites = new Writes[Etch] {
