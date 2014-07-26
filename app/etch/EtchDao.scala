@@ -88,7 +88,7 @@ object EtchDao {
     )
   }
 
-  def getEtchE6(latitudeE6: Int, longitudeE6: Int): Option[Etch] = {
+  def getEtchE6(latitudeE6: Int, longitudeE6: Int): Option[EtchE6] = {
     val query = MongoDBObject(
       EtchFields.latitudeE6 -> latitudeE6,
       EtchFields.longitudeE6 -> longitudeE6
@@ -100,10 +100,10 @@ object EtchDao {
       None
     }
     else {
-      Some(Etch(
+      Some(EtchE6(
         result.as[String](EtchFields.base64Image),
-        result.as[Double](EtchFields.latitude),
-        result.as[Double](EtchFields.longitude)
+        result.as[Int](EtchFields.latitude),
+        result.as[Int](EtchFields.longitude)
       ))
     }
   }
