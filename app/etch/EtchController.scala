@@ -35,12 +35,6 @@ object EtchController extends Controller {
 
       result.getOrElse(BadRequest(""))
 
-
-//      val base64Image = (json \ "base64Image").as[String]
-//      val latitudeE6 = (json \ "coords" \ "latitudeE6").as[Int]
-//      val longitudeE6 = (json \ "coords" \ "longitudeE6").as[Int]
-
-
     }
   }
 
