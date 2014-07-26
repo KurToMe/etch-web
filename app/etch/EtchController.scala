@@ -32,16 +32,16 @@ object EtchController extends Controller {
       val epochTime = new Date().getTime
       val path = s"/tmp/$latitudeE6-$longitudeE6-$epochTime.png.gz"
       val file = new File(path)
-      file.createNewFile()
       request.body.moveTo(file)
 
-      val source = scala.io.Source.fromFile(file)
+      val source = scala.io.Source.fromFile(path)
       val byteArray = source.map(_.toByte).toArray
       source.close()
 
 
       val etch = EtchE6(byteArray, latitudeE6, longitudeE6)
       EtchDao.upsertEtchE6(etch)
+      file.delete()
       Ok("")
     }
   }
