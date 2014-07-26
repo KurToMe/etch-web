@@ -7,7 +7,7 @@ case class Etch(
 
 
 case class EtchE6(
-  base64Image: String,
+  gzipImage: Array[Byte],
   latitudeE6: Int,
   longitudeE6: Int
 )

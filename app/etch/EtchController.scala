@@ -23,18 +23,24 @@ object EtchController extends Controller {
     }
   }
 
-  def saveEtchE6() = {
-    Action(parse.json) { request =>
-      val json = request.body
+  def saveEtchE6(latitudeE6: Int, longitudeE6: Int) = {
+    Action(parse.raw) { request =>
+      val result = request.body.asBytes() map {
+        case bytes: Array[Byte] => {
+          val etch = EtchE6(bytes, latitudeE6, longitudeE6)
+          EtchDao.upsertEtchE6(etch)
+          Ok("")
+        }
+      }
 
-      val base64Image = (json \ "base64Image").as[String]
-      val latitudeE6 = (json \ "coords" \ "latitudeE6").as[Int]
-      val longitudeE6 = (json \ "coords" \ "longitudeE6").as[Int]
+      result.getOrElse(BadRequest(""))
 
-      val etch = EtchE6(base64Image, latitudeE6, longitudeE6)
-      EtchDao.upsertEtchE6(etch)
 
-      Ok("")
+//      val base64Image = (json \ "base64Image").as[String]
+//      val latitudeE6 = (json \ "coords" \ "latitudeE6").as[Int]
+//      val longitudeE6 = (json \ "coords" \ "longitudeE6").as[Int]
+
+
     }
   }
 

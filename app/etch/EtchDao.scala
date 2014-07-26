@@ -42,6 +42,7 @@ object EtchDao {
 
   object EtchFields {
     val base64Image = "base64Image"
+    val imageGzip = "imgGz"
 
     @deprecated val latitude = "latitude"
     @deprecated val longitude = "longitude"
@@ -71,7 +72,7 @@ object EtchDao {
 
   def upsertEtchE6(etch: EtchE6) = {
     val document = MongoDBObject(
-      EtchFields.base64Image -> etch.base64Image,
+      EtchFields.imageGzip -> etch.gzipImage,
       EtchFields.latitudeE6 -> etch.latitudeE6,
       EtchFields.longitudeE6 -> etch.longitudeE6
     )
@@ -103,7 +104,7 @@ object EtchDao {
     }
     else {
       Some(EtchE6(
-        result.as[String](EtchFields.base64Image),
+        result.as[Array[Byte]](EtchFields.imageGzip),
         result.as[Int](EtchFields.latitudeE6),
         result.as[Int](EtchFields.longitudeE6)
       ))
