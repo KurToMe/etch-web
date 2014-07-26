@@ -34,6 +34,12 @@ object EtchDao {
   )
   etchesCollection.ensureIndex(sorts)
 
+  val sortsE6 = MongoDBObject(
+    EtchFields.latitudeE6 -> 1,
+    EtchFields.longitudeE6 -> 1
+  )
+  etchesCollection.ensureIndex(sortsE6)
+
   object EtchFields {
     val base64Image = "base64Image"
     val latitude = "latitude"
