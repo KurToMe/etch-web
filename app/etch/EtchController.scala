@@ -62,15 +62,15 @@ object EtchController extends Controller {
     }
   }
 
-  implicit val etchE6Writes = new Writes[EtchE6] {
-    override def writes(etch: EtchE6): JsValue = {
-      Json.obj(
-        "base64Image" -> etch.base64Image,
-        "latitudeE6" -> etch.latitudeE6,
-        "longitudeE6" -> etch.longitudeE6
-      )
-    }
-  }
+//  implicit val etchE6Writes = new Writes[EtchE6] {
+//    override def writes(etch: EtchE6): JsValue = {
+//      Json.obj(
+//        "base64Image" -> etch.base64Image,
+//        "latitudeE6" -> etch.latitudeE6,
+//        "longitudeE6" -> etch.longitudeE6
+//      )
+//    }
+//  }
 
   def getEtch(latitude:Double, longitude:Double) = {
     Action.apply {
@@ -82,9 +82,12 @@ object EtchController extends Controller {
 
   def getEtchE6(latitudeE6: Int, longitudeE6: Int) = {
     Action.apply {
-      val etch = EtchDao.getEtchE6(latitudeE6, longitudeE6)
+      val bytes: Array[Byte] = EtchDao.getEtchE6(latitudeE6, longitudeE6) match {
+        case Some(etch) => etch.gzipImage
+        case _ => Array()
+      }
 
-      Ok(Json.toJson(etch))
+      Ok(bytes).as("application/gzip")
     }
   }
 }
