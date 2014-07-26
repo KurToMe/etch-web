@@ -7,10 +7,10 @@ POST    /json/etch         etch.EtchController.saveEtch()
 GET    /json/etch         etch.EtchController.getEtch(latitude: Double, longitude: Double)
 
 # Home page
-GET     /                           controllers.Application.index
+# GET     /                           controllers.Application.index
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+# GET     /assets/*file               controllers.Assets.at(path="/public", file)
 
-GET     /*any                       controllers.Application.deferToAngular(any: String)
+# GET     /*any                       controllers.Application.deferToAngular(any: String)
 
