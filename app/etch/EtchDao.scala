@@ -42,8 +42,10 @@ object EtchDao {
 
   object EtchFields {
     val base64Image = "base64Image"
-    val latitude = "latitude"
-    val longitude = "longitude"
+
+    @deprecated val latitude = "latitude"
+    @deprecated val longitude = "longitude"
+
     val latitudeE6 = "latitudeE6"
     val longitudeE6 = "longitudeE6"
   }
@@ -102,8 +104,8 @@ object EtchDao {
     else {
       Some(EtchE6(
         result.as[String](EtchFields.base64Image),
-        result.as[Int](EtchFields.latitude),
-        result.as[Int](EtchFields.longitude)
+        result.as[Int](EtchFields.latitudeE6),
+        result.as[Int](EtchFields.longitudeE6)
       ))
     }
   }
