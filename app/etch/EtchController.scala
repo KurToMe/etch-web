@@ -30,8 +30,9 @@ object EtchController extends Controller {
     Action(parse.temporaryFile) { request =>
 
       val epochTime = new Date().getTime
-      val path = s"./tmp/$latitudeE6/$longitudeE6/$epochTime"
+      val path = s"./tmp/$latitudeE6-$longitudeE6-$epochTime.png.gz"
       val file = new File(path)
+      file.createNewFile()
       request.body.moveTo(file)
 
       val source = scala.io.Source.fromFile(file)
