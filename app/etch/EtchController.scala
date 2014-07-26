@@ -1,9 +1,12 @@
 package etch
 
+import java.util.Date
+
 import play.api.mvc.{Controller, Action}
 import play.api.libs.json
 import play.api.mvc.BodyParsers.parse
 import play.api.libs.json.{JsValue, Writes, Json}
+import java.io.File
 
 
 object EtchController extends Controller {
@@ -24,17 +27,21 @@ object EtchController extends Controller {
   }
 
   def saveEtchE6(latitudeE6: Int, longitudeE6: Int) = {
-    Action(parse.raw) { request =>
-      val result = request.body.asBytes() map {
-        case bytes: Array[Byte] => {
-          val etch = EtchE6(bytes, latitudeE6, longitudeE6)
-          EtchDao.upsertEtchE6(etch)
-          Ok("")
-        }
-      }
+    Action(parse.temporaryFile) { request =>
 
-      result.getOrElse(BadRequest(""))
+      val epochTime = new Date().getTime
+      val path = s"./tmp/$latitudeE6/$longitudeE6/$epochTime"
+      val file = new File(path)
+      request.body.moveTo(file)
 
+      val source = scala.io.Source.fromFile(file)
+      val byteArray = source.map(_.toByte).toArray
+      source.close()
+
+
+      val etch = EtchE6(byteArray, latitudeE6, longitudeE6)
+      EtchDao.upsertEtchE6(etch)
+      Ok("")
     }
   }
 
