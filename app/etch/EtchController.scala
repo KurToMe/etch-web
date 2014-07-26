@@ -23,12 +23,26 @@ object EtchController extends Controller {
     }
   }
 
-  def truncate(d: Double): Double = {
-    // 4 decimal places is about 30 ft precision,
-    //  which is about as accurate as most phones can hope for nowadays.
-    val digits: Int = 4
+  def saveEtchE6() = {
+    Action(parse.json) { request =>
+      val json = request.body
 
-    val multiplier: Double = math.pow(10, digits)
+      val base64Image = (json \ "base64Image").as[String]
+      val latitudeE6 = (json \ "coords" \ "latitudeE6").as[Int]
+      val longitudeE6 = (json \ "coords" \ "longitudeE6").as[Int]
+
+      val etch = EtchE6(base64Image, latitudeE6, longitudeE6)
+      EtchDao.upsertEtchE6(etch)
+
+      Ok("")
+    }
+  }
+
+  import EtchConstants._
+
+  def truncate(d: Double): Double = {
+
+    val multiplier: Double = math.pow(10, PrecisionDigits)
     (d * multiplier).round / multiplier
   }
 
@@ -42,6 +56,16 @@ object EtchController extends Controller {
     }
   }
 
+  implicit val etchE6Writes = new Writes[EtchE6] {
+    override def writes(etch: EtchE6): JsValue = {
+      Json.obj(
+        "base64Image" -> etch.base64Image,
+        "latitudeE6" -> etch.latitudeE6,
+        "longitudeE6" -> etch.longitudeE6
+      )
+    }
+  }
+
   def getEtch(latitude:Double, longitude:Double) = {
     Action.apply {
       val etch = EtchDao.getEtch(truncate(latitude), truncate(longitude))
@@ -50,5 +74,18 @@ object EtchController extends Controller {
     }
   }
 
+  def getEtchE6(latitudeE6: Int, longitudeE6: Int) = {
+    Action.apply {
+      val etch = EtchDao.getEtchE6(latitudeE6, longitudeE6)
+
+      Ok(Json.toJson(etch))
+    }
+  }
+}
+ 
+object EtchConstants {
+  // 4 decimal places is about 30 ft precision,
+  //  which is about as accurate as most phones can hope for nowadays.
+  val PrecisionDigits: Int = 4
 
 }

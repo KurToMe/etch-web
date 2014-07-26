@@ -38,6 +38,8 @@ object EtchDao {
     val base64Image = "base64Image"
     val latitude = "latitude"
     val longitude = "longitude"
+    val latitudeE6 = "latitudeE6"
+    val longitudeE6 = "longitudeE6"
   }
 
   def upsertEtch(etch: Etch) = {
@@ -57,6 +59,47 @@ object EtchDao {
       true,
       false
     )
+  }
+
+  def upsertEtchE6(etch: EtchE6) = {
+    val document = MongoDBObject(
+      EtchFields.base64Image -> etch.base64Image,
+      EtchFields.latitudeE6 -> etch.latitudeE6,
+      EtchFields.longitudeE6 -> etch.longitudeE6
+    )
+    val upsertQuery = MongoDBObject(
+      EtchFields.latitudeE6 -> etch.latitudeE6,
+      EtchFields.longitudeE6 -> etch.longitudeE6
+    )
+
+    val upsert = true
+    val multi = false
+    etchesCollection.update(
+      upsertQuery,
+      document,
+      upsert,
+      multi
+    )
+  }
+
+  def getEtchE6(latitudeE6: Int, longitudeE6: Int): Option[Etch] = {
+    val query = MongoDBObject(
+      EtchFields.latitudeE6 -> latitudeE6,
+      EtchFields.longitudeE6 -> longitudeE6
+    )
+
+    val result = etchesCollection.findOne( query )
+
+    if (result == null) {
+      None
+    }
+    else {
+      Some(Etch(
+        result.as[String](EtchFields.base64Image),
+        result.as[Double](EtchFields.latitude),
+        result.as[Double](EtchFields.longitude)
+      ))
+    }
   }
 
   def getEtch(latitude: Double, longitude: Double): Option[Etch] = {
