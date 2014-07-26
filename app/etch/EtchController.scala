@@ -2,11 +2,14 @@ package etch
 
 import java.util.Date
 
+import org.apache.commons.io.IOUtils
 import play.api.mvc.{Controller, Action}
 import play.api.libs.json
 import play.api.mvc.BodyParsers.parse
 import play.api.libs.json.{JsValue, Writes, Json}
-import java.io.File
+import java.io.{FileInputStream, ByteArrayInputStream, File}
+
+import scala.io.Codec
 
 
 object EtchController extends Controller {
@@ -34,9 +37,10 @@ object EtchController extends Controller {
       val file = new File(path)
       request.body.moveTo(file)
 
-      val source = scala.io.Source.fromFile(path)
-      val byteArray = source.map(_.toByte).toArray
-      source.close()
+
+      val stream = new FileInputStream(path)
+      val byteArray = IOUtils.toByteArray(stream)
+      stream.close()
 
 
       val etch = EtchE6(byteArray, latitudeE6, longitudeE6)

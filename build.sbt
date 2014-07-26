@@ -10,6 +10,7 @@ resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repos
 
 libraryDependencies ++= Seq(
   "org.mongodb" %% "casbah" % "2.7.1",
-  "org.scalatest" %% "scalatest" % "2.1.7"
+  "org.scalatest" %% "scalatest" % "2.1.7",
+  "commons-io" % "commons-io" % "2.4"
 )
 
