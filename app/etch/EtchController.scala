@@ -39,4 +39,5 @@ object EtchController extends Controller {
     }
   }
 
+  S3Backfill.run()
 }
