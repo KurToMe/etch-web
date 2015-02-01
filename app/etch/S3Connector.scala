@@ -36,7 +36,7 @@ object S3Connector {
   private val awsSecret = "9AIdmO8OOtNMDdUFyLUec4QCsRYsh9o2T1PYdkX"
 
   private val credentials = new BasicAWSCredentials(awsKey, awsSecret)
-  private val client = new AmazonS3Client()
+  private val client = new AmazonS3Client(credentials)
 
   private val bucket = "kurtome-etch-image"
 
