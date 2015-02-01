@@ -2,12 +2,17 @@ package etch
 
 import java.io.ByteArrayInputStream
 import java.io.Closeable
+import java.io.File
 import scala.concurrent.Future
 
+import com.amazonaws.ClientConfiguration
 import com.amazonaws.auth.BasicAWSCredentials
+import com.amazonaws.regions.Regions
 import com.amazonaws.services.kms.model.KeyUnavailableException
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.ObjectMetadata
+import com.amazonaws.services.s3.model.Region
+import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.IOUtils
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -32,11 +37,13 @@ import etch.CloseableLoan.borrow
 
 object S3Connector {
 
+  // TODO - eventually move this out of code and re-gen the keys so it's not in version control
   private val awsKey = "AKIAJZYSK3YBYON7SV7Q"
   private val awsSecret = "9AIdmO8OOtNMDdUFyLUec4QCsRYsh9o2T1PYdkX"
 
   private val credentials = new BasicAWSCredentials(awsKey, awsSecret)
   private val client = new AmazonS3Client(credentials)
+  client.setRegion(Regions.US_EAST_1)
 
   private val bucket = "kurtome-etch-image"
 
@@ -55,6 +62,7 @@ object S3Connector {
     borrow(new ByteArrayInputStream(content)) { contentStream =>
       val metadata = new ObjectMetadata()
       metadata.setContentLength(content.length)
+      metadata.setContentMD5(DigestUtils.md5Hex(content))
 
       client.putObject(bucket, key, contentStream, metadata)
     }
