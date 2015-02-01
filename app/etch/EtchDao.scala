@@ -1,9 +1,15 @@
 package etch
 
-import com.mongodb.casbah.{MongoClientURI, MongoClient, MongoURI}
-import play.Play
-import com.mongodb.casbah.Imports._
+import scala.collection.JavaConversions._
 
+import com.mongodb.QueryBuilder
+import com.mongodb.casbah.Imports._
+import com.mongodb.casbah.MongoClient
+import com.mongodb.casbah.MongoClientURI
+import com.mongodb.casbah.MongoURI
+import play.Play
+
+@deprecated("Storing in s3 now, delete after backfill")
 object EtchDao {
 
 
@@ -18,21 +24,7 @@ object EtchDao {
   }
   val etchDb = mongoClient.getDB(dbName)
   println(s"Using mongo db: $dbName")
-//  clientUri.username match {
-//    case Some(username) => {
-//      println(s"Authenticating mongo user $username on db $dbName")
-//      val pass = String.valueOf(clientUri.password.get)
-//      etchDb.authenticate(username, pass)
-//    }
-//    case _ => // No need to auth
-//  }
   val etchesCollection = etchDb.getCollection("etch")
-
-  val sorts = MongoDBObject(
-    EtchFields.latitude -> 1,
-    EtchFields.longitude -> 1
-  )
-  etchesCollection.ensureIndex(sorts)
 
   val sortsE6 = MongoDBObject(
     EtchFields.latitudeE6 -> 1,
@@ -41,41 +33,23 @@ object EtchDao {
   etchesCollection.ensureIndex(sortsE6)
 
   object EtchFields {
-    val base64Image = "base64Image"
     val imageGzip = "imgGz"
-
-    @deprecated val latitude = "latitude"
-    @deprecated val longitude = "longitude"
 
     val latitudeE6 = "latitudeE6"
     val longitudeE6 = "longitudeE6"
+
+    val s3Backfill = "s3Backfill"
   }
 
-  def upsertEtch(etch: Etch) = {
-    val document = MongoDBObject(
-      EtchFields.base64Image -> etch.base64Image,
-      EtchFields.latitude -> etch.latitude,
-      EtchFields.longitude -> etch.longitude
-    )
-    val upsertQuery = MongoDBObject(
-      EtchFields.latitude -> etch.latitude,
-      EtchFields.longitude -> etch.longitude
-    )
-
-    etchesCollection.update(
-      upsertQuery,
-      document,
-      true,
-      false
-    )
-  }
+  private def toDocument(etch: EtchE6) = MongoDBObject(
+    EtchFields.imageGzip -> etch.gzipImage,
+    EtchFields.latitudeE6 -> etch.latitudeE6,
+    EtchFields.longitudeE6 -> etch.longitudeE6
+  )
 
   def upsertEtchE6(etch: EtchE6) = {
-    val document = MongoDBObject(
-      EtchFields.imageGzip -> etch.gzipImage,
-      EtchFields.latitudeE6 -> etch.latitudeE6,
-      EtchFields.longitudeE6 -> etch.longitudeE6
-    )
+    val document = toDocument(etch)
+
     val upsertQuery = MongoDBObject(
       EtchFields.latitudeE6 -> etch.latitudeE6,
       EtchFields.longitudeE6 -> etch.longitudeE6
@@ -97,41 +71,36 @@ object EtchDao {
       EtchFields.longitudeE6 -> longitudeE6
     )
 
-    val result = etchesCollection.findOne( query )
-
-    if (result == null) {
-      None
-    }
-    else {
-      Some(EtchE6(
-        result.as[Array[Byte]](EtchFields.imageGzip),
-        result.as[Int](EtchFields.latitudeE6),
-        result.as[Int](EtchFields.longitudeE6)
-      ))
-    }
+    Option(etchesCollection.findOne(query))
+      .map(toEtch)
   }
 
-  def getEtch(latitude: Double, longitude: Double): Option[Etch] = {
-    val query = MongoDBObject(
-      EtchFields.latitude -> latitude,
-      EtchFields.longitude -> longitude
+  def toEtch(result: DBObject) = {
+    val backfilled = result.containsField(EtchFields.s3Backfill) &&
+      result.as[Boolean](EtchFields.s3Backfill)
+
+    EtchE6(
+      gzipImage = result.as[Array[Byte]](EtchFields.imageGzip),
+      latitudeE6 = result.as[Int](EtchFields.latitudeE6),
+      longitudeE6 = result.as[Int](EtchFields.longitudeE6)
     )
-
-    val result = etchesCollection.findOne( query )
-
-    if (result == null) {
-      None
-    }
-    else {
-      Some(Etch(
-        result.as[String](EtchFields.base64Image),
-        result.as[Double](EtchFields.latitude),
-        result.as[Double](EtchFields.longitude)
-      ))
-    }
   }
 
+  def notBackfilled(): Seq[EtchE6] = {
+    val notBackfilled = MongoDBObject(
+      EtchFields.s3Backfill -> false
+    )
+    val doesntHaveProp = MongoDBObject (
+      EtchFields.s3Backfill -> MongoDBObject("$exists" -> false)
+    )
+    val query = QueryBuilder.start()
+      .or(notBackfilled, doesntHaveProp)
+      .get()
 
+    etchesCollection.find(query)
+      .toArray
+      .map(toEtch)
+  }
 
 
 }

@@ -1,106 +1,42 @@
 package etch
 
+import java.io.File
+import java.io.FileInputStream
 import java.util.Date
+import scala.concurrent.ExecutionContext.Implicits.global
 
 import org.apache.commons.io.IOUtils
-import play.api.mvc.{Controller, Action}
-import play.api.libs.json
-import play.api.mvc.BodyParsers.parse
-import play.api.libs.json.{JsValue, Writes, Json}
-import java.io.{FileInputStream, ByteArrayInputStream, File}
-
-import scala.io.Codec
-
+import play.api.mvc.Action
+import play.api.mvc.Controller
 
 object EtchController extends Controller {
 
-  def saveEtch() = {
-    Action(parse.json) { request =>
-      val json = request.body
+  def saveEtchE6(latitudeE6: Int, longitudeE6: Int) = Action.async(parse.temporaryFile) { request =>
+    val epochTime = new Date().getTime
+    val path = s"/tmp/$latitudeE6-$longitudeE6-$epochTime.png.gz"
+    val file = new File(path)
+    request.body.moveTo(file)
 
-      val base64Image = (json \ "base64Image").as[String]
-      val latitude = (json \ "coords" \ "latitude").as[Double]
-      val longitude = (json \ "coords" \ "longitude").as[Double]
+    val stream = new FileInputStream(path)
+    val byteArray = IOUtils.toByteArray(stream)
+    stream.close()
+    file.delete()
 
-      val etch = Etch(base64Image, truncate(latitude), truncate(longitude))
-      EtchDao.upsertEtch(etch)
-
+    val etch = EtchE6(byteArray, latitudeE6, longitudeE6)
+    EtchImageDao.saveEtch(etch) map { _ =>
       Ok("")
     }
   }
 
-  def saveEtchE6(latitudeE6: Int, longitudeE6: Int) = {
-    Action(parse.temporaryFile) { request =>
-
-      val epochTime = new Date().getTime
-      val path = s"/tmp/$latitudeE6-$longitudeE6-$epochTime.png.gz"
-      val file = new File(path)
-      request.body.moveTo(file)
-
-
-      val stream = new FileInputStream(path)
-      val byteArray = IOUtils.toByteArray(stream)
-      stream.close()
-
-
-      val etch = EtchE6(byteArray, latitudeE6, longitudeE6)
-      EtchDao.upsertEtchE6(etch)
-      file.delete()
-      Ok("")
-    }
+  def toResponseBody(opt: Option[Array[Byte]]): Array[Byte] = opt match {
+    case Some(imageBytes) => imageBytes
+    case None => Array()
   }
 
-  import EtchConstants._
-
-  def truncate(d: Double): Double = {
-
-    val multiplier: Double = math.pow(10, PrecisionDigits)
-    (d * multiplier).round / multiplier
-  }
-
-  implicit val etchWrites = new Writes[Etch] {
-    override def writes(etch: Etch): JsValue = {
-      Json.obj(
-        "base64Image" -> etch.base64Image,
-        "latitude" -> etch.latitude,
-        "longitude" -> etch.longitude
-      )
-    }
-  }
-
-//  implicit val etchE6Writes = new Writes[EtchE6] {
-//    override def writes(etch: EtchE6): JsValue = {
-//      Json.obj(
-//        "base64Image" -> etch.base64Image,
-//        "latitudeE6" -> etch.latitudeE6,
-//        "longitudeE6" -> etch.longitudeE6
-//      )
-//    }
-//  }
-
-  def getEtch(latitude:Double, longitude:Double) = {
-    Action.apply {
-      val etch = EtchDao.getEtch(truncate(latitude), truncate(longitude))
-
-      Ok(Json.toJson(etch))
-    }
-  }
-
-  def getEtchE6(latitudeE6: Int, longitudeE6: Int) = {
-    Action.apply {
-      val bytes: Array[Byte] = EtchDao.getEtchE6(latitudeE6, longitudeE6) match {
-        case Some(etch) => etch.gzipImage
-        case _ => Array()
-      }
-
+  def getEtchE6(latitudeE6: Int, longitudeE6: Int) = Action.async {
+    EtchImageDao.findEtch(latitudeE6, longitudeE6) map toResponseBody map { bytes =>
       Ok(bytes).as("application/gzip")
     }
   }
-}
- 
-object EtchConstants {
-  // 4 decimal places is about 30 ft precision,
-  //  which is about as accurate as most phones can hope for nowadays.
-  val PrecisionDigits: Int = 4
 
 }

@@ -3,9 +3,6 @@
 # ~~~~
 
 
-POST    /json/etch         etch.EtchController.saveEtch()
-GET    /json/etch         etch.EtchController.getEtch(latitude: Double, longitude: Double)
-
 # Had to add new endpoints to not break compatibility while rolling out E6 change
 POST    /json/etchE6/:latitudeE6/:longitudeE6           etch.EtchController.saveEtchE6(latitudeE6: Int, longitudeE6: Int)
 GET    /json/etchE6/:latitudeE6/:longitudeE6            etch.EtchController.getEtchE6(latitudeE6: Int, longitudeE6: Int)
