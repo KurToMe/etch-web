@@ -38,8 +38,8 @@ import etch.CloseableLoan.borrow
 object S3Connector {
 
   // TODO - eventually move this out of code and re-gen the keys so it's not in version control
-  private val awsKey = "AKIAJZYSK3YBYON7SV7Q"
-  private val awsSecret = "9AIdmO8OOtNMDdUFyLUec4QCsRYsh9o2T1PYdkX"
+  private val awsKey = "AKIAIABEMN4LI6457JOA"
+  private val awsSecret = "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"
 
   private val credentials = new BasicAWSCredentials(awsKey, awsSecret)
   private val client = new AmazonS3Client(credentials)
