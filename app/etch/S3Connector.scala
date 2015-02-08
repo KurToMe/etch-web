@@ -47,7 +47,7 @@ object S3Connector {
   private val bucket = "kurtome-etch-image"
 
   private object KeyNotFound {
-    def unapply(t: Throwable): Option[Throwable] = {
+    def unapply(throwable: Throwable): Option[Throwable] = throwable match {
       case e: AmazonServiceException => {
         if (e.getErrorCode == "NoSuchKey") Some(e)
         else None
