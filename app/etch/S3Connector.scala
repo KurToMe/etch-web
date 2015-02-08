@@ -43,7 +43,6 @@ object S3Connector {
 
   private val credentials = new BasicAWSCredentials(awsKey, awsSecret)
   private val client = new AmazonS3Client(credentials)
-  client.setRegion(Region.getRegion(Regions.fromName("US Standard")))
 
   private val bucket = "kurtome-etch-image"
 
