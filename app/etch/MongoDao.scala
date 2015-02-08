@@ -9,8 +9,11 @@ import com.mongodb.casbah.MongoClientURI
 import com.mongodb.casbah.MongoURI
 import play.Play
 
-@deprecated("Storing in s3 now, delete after backfill")
-object EtchDao {
+@deprecated(
+  "Leaving just in case I want to store metadata in" +
+    "mongo and don't want to re-write the connection code"
+)
+object MongoDao {
 
 
   val rawUriString = Play.application().configuration().getString("mongo.uri")

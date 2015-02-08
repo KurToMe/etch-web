@@ -12,8 +12,6 @@ import play.api.mvc.Controller
 object EtchController extends Controller {
 
   def saveEtchE6(latitudeE6: Int, longitudeE6: Int) = Action.async(parse.temporaryFile) { request =>
-    S3Backfill.run()
-
     val epochTime = new Date().getTime
     val path = s"/tmp/$latitudeE6-$longitudeE6-$epochTime.png.gz"
     val file = new File(path)
