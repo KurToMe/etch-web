@@ -2,6 +2,8 @@ package etch
 
 import java.io.ByteArrayInputStream
 import java.io.Closeable
+import java.io.File
+import java.util.Base64
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.control.NonFatal
@@ -67,10 +69,11 @@ object S3Connector {
   }
 
   def put(key: String, content: Array[Byte]): Unit = {
+    val md5 = Base64.getEncoder.encodeToString(DigestUtils.md5(content))
     borrow(new ByteArrayInputStream(content)) { contentStream =>
       val metadata = new ObjectMetadata()
       metadata.setContentLength(content.length)
-      metadata.setContentMD5(DigestUtils.md5Hex(content))
+      metadata.setContentMD5(md5)
 
       client.putObject(bucket, key, contentStream, metadata)
     }
