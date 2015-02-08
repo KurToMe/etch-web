@@ -2,15 +2,12 @@ package etch
 
 import java.io.ByteArrayInputStream
 import java.io.Closeable
-import java.io.File
 import java.util.Base64
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.util.control.NonFatal
 
 import com.amazonaws.AmazonServiceException
 import com.amazonaws.auth.BasicAWSCredentials
-import com.amazonaws.services.kms.model.KeyUnavailableException
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.S3ClientOptions
 import com.amazonaws.services.s3.model.ObjectMetadata
