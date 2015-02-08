@@ -2,19 +2,18 @@ package etch
 
 import java.io.ByteArrayInputStream
 import java.io.Closeable
-import java.io.File
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.util.control.NonFatal
 
-import com.amazonaws.ClientConfiguration
+import com.amazonaws.AmazonServiceException
 import com.amazonaws.auth.BasicAWSCredentials
-import com.amazonaws.regions.Region
-import com.amazonaws.regions.Regions
 import com.amazonaws.services.kms.model.KeyUnavailableException
 import com.amazonaws.services.s3.AmazonS3Client
+import com.amazonaws.services.s3.S3ClientOptions
 import com.amazonaws.services.s3.model.ObjectMetadata
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.IOUtils
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class CloseableLoan[C <: Closeable](closeable: C) {
   def map[A](f: (C) => A) = {
@@ -43,8 +42,18 @@ object S3Connector {
 
   private val credentials = new BasicAWSCredentials(awsKey, awsSecret)
   private val client = new AmazonS3Client(credentials)
+  private val options = new S3ClientOptions()
 
   private val bucket = "kurtome-etch-image"
+
+  private object KeyNotFound {
+    def unapply(t: Throwable): Option[Throwable] = {
+      case e: AmazonServiceException => {
+        if (e.getErrorCode == "NoSuchKey") Some(e)
+        else None
+      }
+    }
+  }
 
   def get(key: String): Option[Array[Byte]] = {
     try {
@@ -53,7 +62,7 @@ object S3Connector {
       }
     }
     catch {
-      case e: KeyUnavailableException => None
+      case KeyNotFound(e) => None
     }
   }
 
@@ -73,7 +82,9 @@ object S3Connector {
  * in order to separate the slow I/O from blocking the app request handlers
  */
 object AsyncS3Connector {
-  import S3Connector.{get => syncGet, put => syncPut}
+
+  import etch.S3Connector.{get => syncGet}
+  import etch.S3Connector.{put => syncPut}
 
   def get(key: String) = Future {
     syncGet(key)

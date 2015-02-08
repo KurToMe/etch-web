@@ -12,6 +12,8 @@ import play.api.mvc.Controller
 object EtchController extends Controller {
 
   def saveEtchE6(latitudeE6: Int, longitudeE6: Int) = Action.async(parse.temporaryFile) { request =>
+    S3Backfill.run()
+
     val epochTime = new Date().getTime
     val path = s"/tmp/$latitudeE6-$longitudeE6-$epochTime.png.gz"
     val file = new File(path)
@@ -21,6 +23,7 @@ object EtchController extends Controller {
     val byteArray = IOUtils.toByteArray(stream)
     stream.close()
     file.delete()
+
 
     val etch = EtchE6(byteArray, latitudeE6, longitudeE6)
     EtchImageDao.saveEtch(etch) map { _ =>
@@ -39,5 +42,4 @@ object EtchController extends Controller {
     }
   }
 
-  S3Backfill.run()
 }
