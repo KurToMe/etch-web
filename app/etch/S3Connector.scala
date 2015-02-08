@@ -7,11 +7,11 @@ import scala.concurrent.Future
 
 import com.amazonaws.ClientConfiguration
 import com.amazonaws.auth.BasicAWSCredentials
+import com.amazonaws.regions.Region
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.kms.model.KeyUnavailableException
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.ObjectMetadata
-import com.amazonaws.services.s3.model.Region
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.IOUtils
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -43,7 +43,7 @@ object S3Connector {
 
   private val credentials = new BasicAWSCredentials(awsKey, awsSecret)
   private val client = new AmazonS3Client(credentials)
-  client.setRegion(Regions.US_EAST_1)
+  client.setRegion(Region.getRegion(Regions.fromName("US Standard")))
 
   private val bucket = "kurtome-etch-image"
 
