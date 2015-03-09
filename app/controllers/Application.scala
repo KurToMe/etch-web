@@ -5,5 +5,8 @@ import play.api.mvc._
 
 object Application extends Controller {
 
+  def health() = Action {
+    Ok("healthy")
+  }
 
 }
