@@ -2,15 +2,18 @@
 # Java applications with deep visibility and low overhead.  For more details and additional
 # configuration options visit https://docs.newrelic.com/docs/java/java-agent-configuration.
 #
+# <%= generated_for_user %>
+#
 # This section is for settings common to all environments.
 # Do not add anything above this next line.
 common: &default_settings
 
   # ============================== LICENSE KEY ===============================
   # You must specify the license key associated with your New Relic
-  # account.  This key binds your Agent's data to your account in the
-  # New Relic service.
-  license_key: 'your license key'
+  # account. For example, if your license key is 12345 use this:
+  # license_key: '12345'
+  # The key binds your Agent's data to your account in the New Relic service.
+  license_key: '<%= license_key %>'
 
   # Agent Enabled
   # Use this setting to disable the agent instead of removing it from the startup command.
@@ -25,7 +28,7 @@ common: &default_settings
   # For example, to report data to "My Application" and "My Application 2" use this:
   # app_name: My Application;My Application 2
   # This setting is required.
-  app_name: Etch Web
+  app_name: etch web
   
   # To enable high security, set this property to true. When in high
   # security mode, the agent will use SSL and obfuscated SQL. Additionally,
@@ -62,7 +65,7 @@ common: &default_settings
   # Default is 1.
   log_file_count: 1
 
-  # The maximum number of bytes to write to any one log file.
+  # The maximum number of kbytes to write to any one log file.
   # The log_file_count must be set greater than 1.
   # Default is 0 (no limit).
   log_limit_in_kbytes: 0
@@ -195,11 +198,11 @@ common: &default_settings
     # this, you must provide any new value as an empty list is ignored.
     ignore_status_codes: 404
 
-  # Analytics Events are used for Histograms and Percentiles. Unaggregated data is collected
+  # Transaction Events are used for Histograms and Percentiles. Unaggregated data is collected
   # for each web transaction and sent to the server on harvest. 
-  analytics_events:
+  transaction_events:
 
-    # Set to false to disable analytics events.
+    # Set to false to disable transaction events.
     # Default is true.
     enabled: true
 
@@ -238,6 +241,12 @@ common: &default_settings
     # for instructions to add these manually to your pages.
     # Set this attribute to false to turn off this behavior.
     auto_instrument: true
+
+  class_transformer:
+    # This instrumentation reports the name of the user principal returned from 
+    # HttpServletRequest.getUserPrincipal() when servlets and filters are invoked.
+    com.newrelic.instrumentation.servlet-user:
+      enabled: false
 
 
 # Application Environments
