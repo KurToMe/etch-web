@@ -5,12 +5,5 @@ import play.api.mvc._
 
 object Application extends Controller {
 
-  def index = Action {
-    Ok(views.html.index())
-  }
-
-  def deferToAngular(any: String) = Action {
-    Ok(views.html.index())
-  }
 
 }
